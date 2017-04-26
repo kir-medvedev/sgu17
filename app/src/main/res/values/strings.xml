@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Sgu17</string>
+    <string name="app_name">SGU News</string>
+    <string name="refresh">Refresh</string>
 </resources>

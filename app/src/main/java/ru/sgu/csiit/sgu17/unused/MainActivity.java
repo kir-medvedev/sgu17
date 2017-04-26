@@ -1,14 +1,12 @@
-package ru.sgu.csiit.sgu17;
+package ru.sgu.csiit.sgu17.unused;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
-public class MainActivity extends Activity {
+import ru.sgu.csiit.sgu17.R;
+
+class MainActivity extends Activity {
 
     private static final String LOG_TAG = "MainActivity";
 

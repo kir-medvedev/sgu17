@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context="ru.sgu.csiit.sgu17.MainActivity">
+        tools:context="ru.sgu.csiit.sgu17.unused.MainActivity">
 
         <ImageView
             android:id="@+id/preview"
