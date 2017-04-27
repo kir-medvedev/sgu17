@@ -22,14 +22,14 @@ public class NewsListActivity extends Activity
     private static final String LOG_TAG = "NewsListActivity";
 
     private final ArrayList<Article> data = new ArrayList<>();
-    private ArrayAdapter<Article> dataAdapter;
+    private NewsItemAdapter dataAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_list_activity);
 
-        this.dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
+        this.dataAdapter = new NewsItemAdapter(this, data);
         ListView newsList = (ListView) findViewById(R.id.news_list);
         newsList.setAdapter(dataAdapter);
         newsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
