@@ -2,9 +2,7 @@ package ru.sgu.csiit.sgu17;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.Intent;
 import android.content.Loader;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +23,10 @@ public class NewsListFragment extends Fragment
     private final ArrayList<Article> data = new ArrayList<>();
     private NewsItemAdapter dataAdapter;
 
+    public interface Listener {
+        void OnArticleClicked(Article article);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,15 +45,10 @@ public class NewsListFragment extends Fragment
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Article article = (Article) parent.getItemAtPosition(position);
-
-                PreviewFragment fragment = new PreviewFragment();
-                Bundle args = new Bundle();
-                args.putString("url", article.link);
-                fragment.setArguments(args);
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, fragment)
-                        .addToBackStack(null)
-                        .commit();
+                if (isResumed()) {
+                    Listener l = (Listener) getActivity();
+                    l.OnArticleClicked(article);
+                }
             }
         });
 
