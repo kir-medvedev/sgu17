@@ -2,7 +2,10 @@ package ru.sgu.csiit.sgu17;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +27,20 @@ public class NewsListFragment extends Fragment
 
     private static final String LOG_TAG = "NewsListActivity";
 
+    private final RefreshBroadcastReceiver refreshBroadcastReceiver = new RefreshBroadcastReceiver();
     private final ArrayList<Article> data = new ArrayList<>();
     private NewsItemAdapter dataAdapter;
+
+    private final class RefreshBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isResumed()) {
+                getActivity().getLoaderManager().restartLoader(0, null, NewsListFragment.this);
+                Toast.makeText(getActivity(), "Data refreshed", Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+    }
 
     public interface Listener {
         void OnArticleClicked(Article article);
@@ -59,15 +75,25 @@ public class NewsListFragment extends Fragment
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLoaderManager().restartLoader(0, null, NewsListFragment.this);
-
                 Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
                 getActivity().startService(serviceIntent);
-
             }
         });
 
         return v;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(RefreshService.REFRESH_ACTION);
+        getActivity().registerReceiver(refreshBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(refreshBroadcastReceiver);
     }
 
     @Override
