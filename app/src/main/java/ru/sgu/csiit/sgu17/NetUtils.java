@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-final class NetUtils {
+public final class NetUtils {
 
     public static String httpGet(String httpUrl) throws IOException {
         final URL url = new URL(httpUrl);

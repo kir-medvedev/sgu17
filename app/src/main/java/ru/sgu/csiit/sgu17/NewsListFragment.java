@@ -2,6 +2,7 @@ package ru.sgu.csiit.sgu17;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.sgu.csiit.sgu17.service.RefreshService;
 
 public class NewsListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<List<Article>> {
@@ -57,6 +60,10 @@ public class NewsListFragment extends Fragment
             @Override
             public void onClick(View v) {
                 getLoaderManager().restartLoader(0, null, NewsListFragment.this);
+
+                Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
+                getActivity().startService(serviceIntent);
+
             }
         });
 

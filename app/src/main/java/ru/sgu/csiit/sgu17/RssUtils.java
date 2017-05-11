@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-final class RssUtils {
+public final class RssUtils {
 
     public static List<Article> parseRss(String rss) throws XmlPullParserException, IOException {
         final ArrayList<Article> res = new ArrayList<>();

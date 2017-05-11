@@ -16,6 +16,7 @@ import java.util.List;
 
 import ru.sgu.csiit.sgu17.db.SguDbContract;
 import ru.sgu.csiit.sgu17.db.SguDbHelper;
+import ru.sgu.csiit.sgu17.service.RefreshService;
 
 final class SguRssLoader extends AsyncTaskLoader<List<Article>> {
 
@@ -40,44 +41,8 @@ final class SguRssLoader extends AsyncTaskLoader<List<Article>> {
     @Override
     public List<Article> loadInBackground() {
         List<Article> res = null;
-        List<Article> netData = null;
-
-        try {
-            String httpResponse = NetUtils.httpGet(URL);
-            netData = RssUtils.parseRss(httpResponse);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Failed to get HTTP response: " + e.getMessage(), e);
-        } catch (XmlPullParserException e) {
-            Log.e(LOG_TAG, "Failed to parse RSS: " + e.getMessage(), e);
-        }
-
-        SQLiteDatabase db = new SguDbHelper(getContext()).getWritableDatabase();
-
         // Load object into the database.
-
-        db.beginTransaction();
-        try {
-            if (netData != null) {
-                for (Article a : netData) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(SguDbContract.COLUMN_GUID, a.guid);
-                    cv.put(SguDbContract.COLUMN_TITLE, a.title);
-                    cv.put(SguDbContract.COLUMN_DESCRIPTION, a.description);
-                    cv.put(SguDbContract.COLUMN_LINK, a.link);
-                    cv.put(SguDbContract.COLUMN_PUBDATE, a.pubDate);
-                    long insertedId = db.insertWithOnConflict(SguDbContract.TABLE_NAME,
-                            null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-                    if (insertedId == -1L)
-                        Log.d(LOG_TAG, "skipped article guid=" + a.guid);
-                }
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-
-        // Load object from the database.
-
+        SQLiteDatabase db = new SguDbHelper(getContext()).getReadableDatabase();
         Cursor cursor = db.query(SguDbContract.TABLE_NAME, new String[]{
                 SguDbContract.COLUMN_TITLE,
                 SguDbContract.COLUMN_DESCRIPTION,
@@ -96,8 +61,9 @@ final class SguRssLoader extends AsyncTaskLoader<List<Article>> {
             }
         } finally {
             cursor.close();
+            db.close();
         }
-
+        Log.d(LOG_TAG, "load finished");
         return res;
     }
 
