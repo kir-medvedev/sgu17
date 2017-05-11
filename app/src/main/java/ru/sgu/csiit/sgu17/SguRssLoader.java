@@ -60,11 +60,15 @@ final class SguRssLoader extends AsyncTaskLoader<List<Article>> {
             if (netData != null) {
                 for (Article a : netData) {
                     ContentValues cv = new ContentValues();
+                    cv.put(SguDbContract.COLUMN_GUID, a.guid);
                     cv.put(SguDbContract.COLUMN_TITLE, a.title);
                     cv.put(SguDbContract.COLUMN_DESCRIPTION, a.description);
                     cv.put(SguDbContract.COLUMN_LINK, a.link);
                     cv.put(SguDbContract.COLUMN_PUBDATE, a.pubDate);
-                    db.insert(SguDbContract.TABLE_NAME, null, cv);
+                    long insertedId = db.insertWithOnConflict(SguDbContract.TABLE_NAME,
+                            null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                    if (insertedId == -1L)
+                        Log.d(LOG_TAG, "skipped article guid=" + a.guid);
                 }
             }
             db.setTransactionSuccessful();

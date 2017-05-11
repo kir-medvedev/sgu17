@@ -6,4 +6,5 @@ public final class Article {
     public String description;
     public String pubDate;
     public String link;
+    public long guid;
 }

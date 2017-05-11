@@ -35,7 +35,9 @@ final class RssUtils {
                     if (parser.getEventType() != XmlPullParser.START_TAG)
                         continue;
                     String itemEntry = parser.getName();
-                    if ("title".equals(itemEntry)) {
+                    if ("guid".equals(itemEntry)) {
+                        article.guid = Long.parseLong(parser.nextText());
+                    } else if ("title".equals(itemEntry)) {
                         article.title = parser.nextText();
                     } else if ("description".equals(itemEntry)) {
                         article.description = parser.nextText();

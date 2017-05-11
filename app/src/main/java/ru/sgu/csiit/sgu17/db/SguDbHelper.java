@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SguDbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "sgudb.sqlite";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     public SguDbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -17,6 +17,7 @@ public class SguDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE " + SguDbContract.TABLE_NAME + "("
                 + SguDbContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + SguDbContract.COLUMN_GUID + " INTEGER NOT NULL UNIQUE, "
                 + SguDbContract.COLUMN_TITLE + " TEXT NOT NULL, "
                 + SguDbContract.COLUMN_DESCRIPTION + " TEXT, "
                 + SguDbContract.COLUMN_LINK + " TEXT NOT NULL, "
@@ -27,5 +28,7 @@ public class SguDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE " + SguDbContract.TABLE_NAME);
+        onCreate(db);
     }
 }
