@@ -20,7 +20,7 @@
             android:id="@+id/wi_fi_only_sw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pref_wifi_only_title" />
+            android:text="@string/pref_wi_fi_only_title" />
 
         <Switch
             android:id="@+id/notifications_sw"
