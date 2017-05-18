@@ -6,7 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -41,7 +44,12 @@ public class RefreshService extends Service {
         public void run() {
             while (!Thread.interrupted()) {
                 try {
-                    loadData();
+                    boolean loadAllowed;
+                    loadAllowed = isPeriodicUpdatesEnabled();
+                    loadAllowed = loadAllowed && (!isWiFiOnly() || isWifiConnected());
+                    if (loadAllowed) {
+                        loadData();
+                    }
                     Thread.sleep(10_000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -142,31 +150,62 @@ public class RefreshService extends Service {
     }
 
     private void sendDataRefreshedNotification() {
-        Intent startIntent = new Intent(this, NewsListActivity.class);
-        PendingIntent notificationIntent = PendingIntent.getActivity(
-                this, 0, startIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("SGU RSS data refreshed")
-                .setContentText("Press notification to open")
-                .setContentIntent(notificationIntent)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.sgu_main)
-                .build();
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(1, notification);
+        if (isNotificationsEnabled()) {
+            Intent startIntent = new Intent(this, NewsListActivity.class);
+            PendingIntent notificationIntent = PendingIntent.getActivity(
+                    this, 0, startIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("SGU RSS data refreshed")
+                    .setContentText("Press notification to open")
+                    .setContentIntent(notificationIntent)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.sgu_main)
+                    .build();
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(1, notification);
+        }
     }
 
     private void showInProgressNotification() {
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("SGU RSS data is refreshing")
-                .setContentText("Wait until complete")
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.sgu_main)
-                .build();
-        startForeground(1, notification);
+        if (isNotificationsEnabled()) {
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("SGU RSS data is refreshing")
+                    .setContentText("Wait until complete")
+                    .setOngoing(true)
+                    .setSmallIcon(R.drawable.sgu_main)
+                    .build();
+            startForeground(1, notification);
+        }
     }
 
     private void hideInProgressNotification() {
         stopForeground(false);
+    }
+
+    private boolean isNotificationsEnabled() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("notifications", true);
+    }
+
+    private boolean isPeriodicUpdatesEnabled() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("periodicUpdates", true);
+    }
+
+    private boolean isWiFiOnly() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("wifiOnly", false);
+    }
+
+    private boolean isWifiConnected() {
+        ConnectivityManager connManager = (ConnectivityManager)
+                getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = connManager.getActiveNetworkInfo();
+        return netInfo != null
+                && netInfo.isConnected()
+                && netInfo.getType() == ConnectivityManager.TYPE_WIFI;
     }
 }

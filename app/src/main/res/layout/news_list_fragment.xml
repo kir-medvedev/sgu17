@@ -11,6 +11,11 @@
         android:layout_height="wrap_content"
         android:text="@string/refresh" />
 
+    <Button
+        android:id="@+id/prefs_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/action_prefs" />
 
     <ListView
         android:id="@+id/news_list"

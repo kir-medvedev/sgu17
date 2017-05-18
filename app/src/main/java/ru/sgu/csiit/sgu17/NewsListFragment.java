@@ -44,6 +44,7 @@ public class NewsListFragment extends Fragment
 
     public interface Listener {
         void OnArticleClicked(Article article);
+        void OnPreferencesClicked();
     }
 
     @Override
@@ -77,6 +78,13 @@ public class NewsListFragment extends Fragment
             public void onClick(View v) {
                 Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
                 getActivity().startService(serviceIntent);
+            }
+        });
+
+        v.findViewById(R.id.prefs_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((Listener) getActivity()).OnPreferencesClicked();
             }
         });
 
